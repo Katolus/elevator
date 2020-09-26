@@ -4,6 +4,24 @@ from elevator.elevator import Elevator
 from elevator.elevator import Door
 
 
+def test_invalid_elevator():
+    Elevator(0, 1)
+    with pytest.raises(ValueError):
+        Elevator(1, 1)
+    with pytest.raises(ValueError):
+        Elevator(2, 1)
+    with pytest.raises(ValueError):
+        Elevator(-3, -2)
+    with pytest.raises(ValueError):
+        Elevator(1, 2)
+    with pytest.raises(ValueError):
+        Elevator(-1.2, 1)
+    with pytest.raises(ValueError):
+        Elevator('ground', 'first')
+
+
+
+
 def test_cannot_go_above_highest_floor():
     elevator = Elevator(0, 1)
     elevator._up_1()

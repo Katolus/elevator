@@ -16,6 +16,18 @@ class Elevator:
         self.door = Door.CLOSED
         self.current_floor = 0  # Starts from ground level
 
+        self.validate()
+
+    def validate(self):
+        if type(self.LOWEST_FLOOR) != int or type(self.LOWEST_FLOOR) != int:
+            raise ValueError('Invalid lowest floor')
+        if self.LOWEST_FLOOR > 0:
+            raise ValueError('Invalid lowest floor')
+        if self.HIGHEST_FLOOR <= 0:
+            raise ValueError('Invalid highest floor')
+        if self.LOWEST_FLOOR >= self.HIGHEST_FLOOR:
+            raise ValueError('Invalid elevator')
+
     def _up_1(self):
         if self.door != Door.CLOSED:
             raise ValueError("Cannot move the elevator if the door is not closed")
