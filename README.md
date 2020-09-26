@@ -13,7 +13,7 @@ venv/bin/pip install -r requirements.txt
 ```
 
 ## How to run the program?
-
+- Run `venv/bin/python run.py` in the root directory
 
 ## How to run tests?
-- `./venv/bin/python -m pytest` in the root of the repository
+- Run `./venv/bin/python -m pytest` in the root directory
