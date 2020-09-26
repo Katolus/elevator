@@ -1,0 +1,12 @@
+# Local editor
+.mypy_cache
+.vscode
+
+# Python
+__pycache__
+
+# Tests
+.pytest_cache
+
+# Virtual environment
+venv
