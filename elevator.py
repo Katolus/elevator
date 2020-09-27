@@ -1,20 +1,19 @@
 from typing import Optional, Set, List
 
 
+class Direction:
+    UP = "UP"
+    DOWN = "DOWN"
+
 class Door:
-    def __init__(self) -> None:
-        self.is_open: bool = False
+    def __init__(self, is_open: bool = False) -> None:
+        self.is_open: bool = is_open
 
     def open(self):
         self.is_open = True
 
     def close(self):
         self.is_open = False
-
-
-class Direction:
-    UP = "UP"
-    DOWN = "DOWN"
 
 
 class Elevator:
@@ -28,6 +27,9 @@ class Elevator:
         self.people: List[Person] = []
 
         self.validate()
+
+    def report_status(self) -> None:
+        pass
 
     def open_door(self):
         print(f"Elevator door have opened")
@@ -143,7 +145,7 @@ class Person:
         self.enter_floor = int(enter_floor)
         self.exit_floor = int(exit_floor)
 
-        self.validate()
+        Person.COUNTER += 1
         self.id = Person.COUNTER
 
     def __repr__(self) -> str:
@@ -153,14 +155,3 @@ class Person:
         return (
             f"<Person id:{self.id} -> {(self.name, self.enter_floor, self.exit_floor)}"
         )
-
-    def validate(self):
-        """
-        Check if a person has been created correctly, 
-        returns an error if not. 
-        """
-        # Validate that string floors work
-        if True:
-            Person.COUNTER += 1
-        else:
-            raise ValueError(f"Couldn't create a Person with {self.__dict__}")
