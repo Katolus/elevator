@@ -1,7 +1,7 @@
 import pytest
 
-from elevator.elevator import Elevator
-from elevator.elevator import Door
+from elevator import Elevator
+from elevator import Door
 
 
 def test_invalid_elevator():
