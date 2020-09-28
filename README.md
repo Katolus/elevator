@@ -2,7 +2,7 @@
 Elevator simulator written in Python
 
 ## Requirements
-- Python 3.6.9
+- Python 3.8.5
 
 ## Prerequisites 
 - You will need to install `virtualenv` if yet not present in your packages. Command: `pip install virtualenv`.
