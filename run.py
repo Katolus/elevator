@@ -27,7 +27,7 @@ class Program:
         def names(people) -> List[str]:
             return [person.name for person in people]
 
-        for elevator in self.lift_controller.elevators.values():
+        for elevator in self.lift_controller.elevators:
             print(f"The elevator is at {elevator.floor} floor.")
             print(f"People in the elevator {names(elevator.people)}")
         print(f"People waiting for a lift {names(self.waiting_for_elevator)}")
@@ -64,7 +64,7 @@ class Program:
         Method triggering an action driven progression through a scenario.
         """
         # Remove people leaving at current floors
-        for elevator in self.lift_controller.elevators.values():
+        for elevator in self.lift_controller.elevators:
             for person in elevator.people_leaving:
                 return self.remove_person_to_lift(elevator, person)
 

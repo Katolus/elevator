@@ -87,6 +87,9 @@ class TestElevator:
             elevator._down_1()
             assert str(error) == "Can't go lower that the 0"
 
+    def test_string_method(self):
+        pass
+
     def test_open_door(self):
         pass
 

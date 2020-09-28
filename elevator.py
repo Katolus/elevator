@@ -1,45 +1,42 @@
 # To be able to type classes defined later in the script
 from __future__ import annotations
-from typing import Iterator, Optional, List, Dict
+from typing import Iterator, Optional, List
 
 
 class Direction:
     UP = "UP"
     DOWN = "DOWN"
-    NOWHERE = 'NOWHERE'
+    NOWHERE = "NOWHERE"
 
 
 class Controller:
-    COUNTER = 0
-
     def __init__(self) -> None:
-        self.elevators: Dict[int, Elevator] = {}
+        self.elevators: List[Elevator] = []
 
     def add_elevator(self, elevator: Elevator) -> None:
         """
         Adds an elevator to a controller.
         """
-        Controller.COUNTER += 1
-        self.elevators[Controller.COUNTER] = elevator
+        self.elevators.append(elevator)
 
     def report_status(self) -> None:
         """
         A helper function that prints out useful elevator information.
         """
-        print(f"Elevator is at {self.floor} floor.")
-        print(f"Elevator's door are open: {self.door.is_open}")
-        print(f"Elevator is going: {self.direction}")
-
+        for elevator in self.elevators:
+            print(f"Elevator is at {elevator.floor} floor.")
+            print(f"Elevator's door are open: {elevator.door.is_open}")
+            print(f"Elevator is going: {elevator.direction}")
 
     @property
     def free_elevators(self) -> List[Elevator]:
         if not self.elevators:
             raise ValueError("No elevators in this controller")
-        return [elevator for elevator in self.elevators.values() if elevator.is_free]
+        return [elevator for elevator in self.elevators if elevator.is_free]
 
     def elevator_at(self, floor: int) -> Optional[Elevator]:
         """Return an elevator if it is at the floor"""
-        for elevator in self.elevators.values():
+        for elevator in self.elevators:
             if elevator.floor == floor:
                 return elevator
         return None
@@ -51,7 +48,7 @@ class Controller:
         """
         # Pick an elevator that is the closest and can travel to this floor
         best_elevator = None
-        min_value = float('inf')
+        min_value = float("inf")
         for elevator in self.free_elevators:
             if elevator.LOWEST_FLOOR <= floor <= elevator.HIGHEST_FLOOR:
                 floor_difference = abs(floor - elevator.floor)
@@ -59,7 +56,7 @@ class Controller:
                     min_value = floor_difference
                     best_elevator = elevator
         if not best_elevator:
-            print('No elevator free at the moment')
+            print("No elevator free at the moment")
             return False
 
         # Send an elevator
@@ -67,7 +64,7 @@ class Controller:
         return True
 
     def move_elevators(self):
-        for elevator in self.elevators.values():
+        for elevator in self.elevators:
             elevator.move()
 
 
@@ -83,6 +80,8 @@ class Door:
 
 
 class Elevator:
+    COUNTER = 0
+
     def __init__(self, lowest_floor: int, highest_floor: int) -> None:
         self.door: Door = Door()
         self.floor: int = 0  # Starts from ground level
@@ -92,6 +91,11 @@ class Elevator:
         self.people: List[Person] = []
 
         self.validate()
+        Elevator.COUNTER += 1
+        self.id = Elevator.COUNTER
+
+    def __str__(self) -> str:
+        return f"Elevator nr.{self.id}"
 
     @property
     def is_free(self) -> bool:
@@ -155,7 +159,7 @@ class Elevator:
         elif self.direction == Direction.DOWN:
             self.down_1()
         else:
-            print(f'This elevator is not moving this round')
+            print(f"This elevator is not moving this round")
 
     @property
     def stop_queue(self):
