@@ -1,7 +1,8 @@
 import pytest
 
-from elevator import Controller, Elevator
+from elevator import Controller
 from elevator import Door
+from elevator import Elevator
 from elevator import Person
 
 
@@ -16,7 +17,13 @@ class TestController:
     def test_free_elevators(self):
         pass
 
-    def test_call_elevator(self):
+    def test_elevator_for(self):
+        pass
+
+    def test_call_elevator_for(self):
+        pass
+
+    def test_move_elevators(self):
         pass
 
 
@@ -92,24 +99,31 @@ class TestElevator:
         assert str(elevator) == f'Elevator nr.{elevator.id}'
 
     def test_open_door(self):
+        # To be added if had time
         pass
 
     def test_close_door(self):
+        # To be added if had time
         pass
 
     def test_people_leaving(self):
+        # To be added if had time
         pass
 
     def test_stop_queue(self):
+        # To be added if had time
         pass
 
     def test_stops(self):
+        # To be added if had time
         pass
 
     def test_move_to(self):
+        # To be added if had time
         pass
 
     def test_move(self):
+        # To be added if had time
         pass
 
 

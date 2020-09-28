@@ -1,3 +1,4 @@
+import sys
 import time
 from typing import List
 
@@ -16,7 +17,10 @@ session = PromptSession()
 
 
 class Program:
-    def __init__(self, controller: Controller, people: List[Person]) -> None:
+    def __init__(
+        self, controller: Controller, people: List[Person], description: str
+    ) -> None:
+        self.description: str = description
         self.lift_controller: Controller = controller
         self.people: List[Person] = people
         self.waiting_for_elevator: List[Person] = people
@@ -57,6 +61,9 @@ class Program:
             elevator.moving_to = None
         print(f"{person.name} has {elevator} the lift at {elevator.floor} floor")
 
+    def empty_line(self) -> None:
+        print()
+
     def next(self) -> None:
         """
         Method triggering an action driven progression through a scenario.
@@ -66,13 +73,13 @@ class Program:
             for person in elevator.people_leaving:
                 self.remove_person_to_lift(elevator, person)
 
-        print()
+        self.empty_line()
         # Move people waiting into lifts if there is a lift at their floor
         for person in self.waiting_for_elevator:
             if elevator := self.lift_controller.elevator_for(person):
                 self.add_person_to_lift(elevator, person)
 
-        print()
+        self.empty_line()
         # For people waiting on the lift calls the elevator
         for person in self.waiting_for_elevator:
             if elevator := self.lift_controller.call_elevator_for(person):
@@ -80,7 +87,7 @@ class Program:
             else:
                 print(f"No elevator for {person.name} at the moment")
 
-        print()
+        self.empty_line()
         # Action elevators
         self.lift_controller.move_elevators()
 
@@ -120,11 +127,11 @@ scenario_1 = Program(
         Person("Jackson", 2, -1),
         Person("Janet", 2, 3),
     ],
+    description="Basic scenario with 4 people and 1 lift",
 )
 scenario_1.lift_controller.add_elevator(Elevator(-1, 4))
 
 
-# Scenario at which the first person is not at the ground floor
 scenario_2 = Program(
     controller=Controller(),
     people=[
@@ -133,10 +140,11 @@ scenario_2 = Program(
         Person("Jackson", 2, -1),
         Person("Janet", 2, 3),
     ],
+    description="Scenario at which the first person in the list of people is not at the ground floor",
 )
 scenario_2.lift_controller.add_elevator(Elevator(-3, 5))
 
-# Scenario with multiple lifts
+
 scenario_3 = Program(
     controller=Controller(),
     people=[
@@ -147,13 +155,26 @@ scenario_3 = Program(
         Person("Joe", -3, 5),
         Person("Jonathan", -1, 6),
     ],
+    description="Scenario with 2 lifts and 6 people",
 )
 scenario_3.lift_controller.add_elevator(Elevator(-3, 5))
 scenario_3.lift_controller.add_elevator(Elevator(-1, 6))
 
 
 if __name__ == "__main__":
-    program = scenario_1
+    scenarios = [scenario_1, scenario_2, scenario_3]
+
+    for index, scenario in enumerate(scenarios):
+        print(f"{index + 1}. - {scenario.description}")
+    answer = session.prompt("> ", bottom_toolbar=HTML("Pick a scenario from the listed ones or amend the code and your own."))
+
+    try:
+        scenario = scenarios[int(answer) - 1]
+    except Exception:
+        print('No such scenario')
+        sys.exit()
+
+    program = scenario
 
     while True:
         answer = session.prompt("> ", bottom_toolbar=bottom_toolbar)
