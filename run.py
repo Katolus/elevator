@@ -4,10 +4,9 @@ from typing import List
 from prompt_toolkit import PromptSession
 from prompt_toolkit.formatted_text import HTML
 
+from elevator import Controller
 from elevator import Elevator
 from elevator import Person
-from elevator import Door
-from elevator import Direction
 
 
 bottom_toolbar = HTML(
@@ -17,8 +16,8 @@ session = PromptSession()
 
 
 class Program:
-    def __init__(self, elevator: Elevator, people: List[Person]) -> None:
-        self.elevator: Elevator = elevator
+    def __init__(self, controller: Controller, people: List[Person]) -> None:
+        self.lift_controller: Controller = controller
         self.people: List[Person] = people
         self.waiting_for_elevator: List[Person] = people
 
@@ -28,52 +27,60 @@ class Program:
         def names(people) -> List[str]:
             return [person.name for person in people]
 
-        print(f"The elevator is at {self.elevator.floor} floor.")
+        for elevator in self.lift_controller.elevators.values():
+            print(f"The elevator is at {elevator.floor} floor.")
+            print(f"People in the elevator {names(elevator.people)}")
         print(f"People waiting for a lift {names(self.waiting_for_elevator)}")
-        print(f"People in the elevator {names(self.elevator.people)}")
 
-    def add_person_to_lift(self, person: Person) -> None:
-        if not self.elevator.door.is_open:
-            self.elevator.open_door()
-        self.elevator.people.append(person)
+    def add_person_to_lift(self, elevator: Elevator,person: Person) -> None:
+        """
+        Moves a person into a lift. 
+
+        TODO: Provide better abstractions for adding and removing people.
+        """
+        if not elevator.door.is_open:
+            elevator.open_door()
+        elevator.people.append(person)
         self.waiting_for_elevator.remove(person)
-        print(f"{person.name} has entered the lift at {self.elevator.floor} floor")
+        print(f"{person.name} has entered the lift at {elevator.floor} floor")
 
-    def remove_person_to_lift(self, person: Person) -> None:
-        if not self.elevator.door.is_open:
-            self.elevator.open_door()
-        self.elevator.people.remove(person)
+    def remove_person_to_lift(self, elevator: Elevator, person: Person) -> None:
+        """
+        Removes people from a lift. 
+
+        TODO: Provide better abstractions removing people from a lift.
+        """
+        if not elevator.door.is_open:
+            elevator.open_door()
+        elevator.people.remove(person)
 
         # If there are not people in the lift, it is not moving nowhere
-        if not self.elevator.people:
-            self.elevator.moving_queue = []
-            self.elevator.moving_to = None
-        print(f"{person.name} has left the lift at {self.elevator.floor} floor")
+        if not elevator.people:
+            elevator.moving_to = None
+        print(f"{person.name} has left the lift at {elevator.floor} floor")
 
     def next(self) -> None:
-        # For people in the elevator, check if their current floor
-        for person in self.elevator.people:
-            if person.exit_floor == self.elevator.floor:
-                return self.remove_person_to_lift(person)
+        """
+        Method triggering an action driven progression through a scenario.
+        """
+        # Remove people leaving at current floors
+        for elevator in self.lift_controller.elevators.values():
+            for person in elevator.people_leaving:
+                return self.remove_person_to_lift(elevator, person)
 
-        # Move people from outside into the elevator
         for person in self.waiting_for_elevator:
-            if person.enter_floor == self.elevator.floor:
-                return self.add_person_to_lift(person)
+            # Move people waiting into lifts if there is a lift at their floor
+            if elevator := self.lift_controller.elevator_at(person.enter_floor):
+                return self.add_person_to_lift(elevator, person)
+            else:
+                # For people waiting on the lift calls the elevator
+                on_its_way = self.lift_controller.call_elevator(person.enter_floor)
+                if on_its_way:
+                    return print(f"An elevator for {person.name} is on its way!")
 
-        if self.elevator.door.is_open:
-            return self.elevator.close_door()
+        # Action elevators
+        self.lift_controller.move_elevators()
 
-        # Action elevator
-        if self.elevator.people:
-            return self.elevator.move()
-
-        # If not in move and people waiting, move the lift to a place
-        if self.waiting_for_elevator:
-            first_waiting = self.waiting_for_elevator[0]
-            if not self.elevator.moving_to:
-                self.elevator.moving_to = first_waiting.enter_floor
-            self.elevator.move()
 
     def handle_input(self, answer: str) -> None:
         """
@@ -104,7 +111,7 @@ class Program:
 
 
 scenario_1 = Program(
-    elevator=Elevator(-1, 4),
+    controller=Controller(),
     people=[
         Person("John", 0, 3),
         Person("Jack", 0, 4),
@@ -112,11 +119,12 @@ scenario_1 = Program(
         Person("Janet", 2, 3),
     ],
 )
+scenario_1.lift_controller.add_elevator(Elevator(-1, 4))
 
 
 # Scenario at which the first person is not at the ground floor
 scenario_2 = Program(
-    elevator=Elevator(-3, 5),
+    controller=Controller(),
     people=[
         Person("John", 1, 3),
         Person("Jack", 0, -2),
@@ -124,10 +132,26 @@ scenario_2 = Program(
         Person("Janet", 2, 3),
     ],
 )
+scenario_2.lift_controller.add_elevator(Elevator(-3, 5))
+
+# Scenario with multiple lifts
+scenario_3 = Program(
+    controller=Controller(),
+    people=[
+        Person("John", 1, 3),
+        Person("Jack", 0, -2),
+        Person("Jackson", 2, -1),
+        Person("Janet", 2, 3),
+        Person("Joe", -3, 5),
+        Person("Jonathan", -1, 6),
+    ],
+)
+scenario_3.lift_controller.add_elevator(Elevator(-3, 5))
+scenario_3.lift_controller.add_elevator(Elevator(-1, 6))
 
 
 if __name__ == "__main__":
-    program = scenario_2
+    program = scenario_3
 
     while True:
         answer = session.prompt("> ", bottom_toolbar=bottom_toolbar)

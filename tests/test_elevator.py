@@ -13,6 +13,12 @@ class TestController:
         controller.add_elevator(elevator)
         assert controller.elevators[1] == elevator
 
+    def test_free_elevators(self):
+        pass
+
+    def test_call_elevator(self):
+        pass
+
 
 class TestDoor:
     def test_initial(self):
@@ -85,6 +91,21 @@ class TestElevator:
         pass
 
     def test_close_door(self):
+        pass
+
+    def test_people_leaving(self):
+        pass
+
+    def test_stop_queue(self):
+        pass
+
+    def test_stops(self):
+        pass
+
+    def test_move_to(self):
+        pass
+
+    def test_move(self):
         pass
 
 
