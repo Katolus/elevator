@@ -5,7 +5,7 @@ In order to learn how to progress through this program, go to the [how-to](./doc
 
 ## Requirements
 
-- Python 3.8.5
+- Python 3.8.5 (I use `pyenv` to manage different version)
 
 ## Prerequisites
 
@@ -35,8 +35,10 @@ venv/bin/pip install -r requirements.txt
 - More / better input commands
 - Provide better, better abstractions for actions like `self.elevator.people.remove(person)`
 - Provide more user friendly and robust running scripts
-- Find a better, more robust way to address counting of instances
+- Find a better, more robust way to address counting of instances (issues in scenario elevator numbers)
 - Remove some of the bugs for printed statements
+- Provide a visual representation of the program instead of verbal
+- Make computation more functional and state changes more abstract
 
 ## Learnings
 
