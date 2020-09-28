@@ -8,10 +8,10 @@ from elevator import Person
 class TestController:
     def test_add_elevator(self):
         controller = Controller()
-        assert controller.elevators == {}
+        assert controller.elevators == []
         elevator = Elevator(0, 4)
         controller.add_elevator(elevator)
-        assert controller.elevators[1] == elevator
+        assert controller.elevators[0] == elevator
 
     def test_free_elevators(self):
         pass
@@ -61,34 +61,35 @@ class TestElevator:
 
     def test_cannot_go_above_highest_floor(self):
         elevator = Elevator(0, 1)
-        elevator._up_1()
+        elevator.up_1()
         with pytest.raises(ValueError) as error:
-            elevator._up_1()
+            elevator.up_1()
             assert str(error) == "Can't go higher that the 1"
 
     def test_cannot_move_if_doors_are_not_closed(self):
         elevator = Elevator(-2, 2)
-        elevator._down_1()
-        elevator._up_1()
+        elevator.down_1()
+        elevator.up_1()
         # Open door
         elevator.door.open()
         with pytest.raises(ValueError) as error:
-            elevator._down_1()
+            elevator.down_1()
         with pytest.raises(ValueError) as error:
-            elevator._up_1()
+            elevator.up_1()
         # Close door
         elevator.door.close()
-        elevator._down_1()
-        elevator._up_1()
+        elevator.down_1()
+        elevator.up_1()
 
     def test_cannot_go_below_lowest_floor(self):
         elevator = Elevator(0, 1)
         with pytest.raises(ValueError) as error:
-            elevator._down_1()
+            elevator.down_1()
             assert str(error) == "Can't go lower that the 0"
 
     def test_string_method(self):
-        pass
+        elevator = Elevator(0, 1)
+        assert str(elevator) == f'Elevator nr.{elevator.id}'
 
     def test_open_door(self):
         pass

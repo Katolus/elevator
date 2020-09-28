@@ -31,14 +31,18 @@ venv/bin/pip install -r requirements.txt
 - Enhance error types (better type chosen, custom types)
 - Add integration tests for the program itself
 - More scenarios
-- Find a better way to progress through program time
+- Find a better way to progress through program time (better than return from `next` method)
 - More / better input commands
 - Provide better, better abstractions for actions like `self.elevator.people.remove(person)`
-- Provide more user friendly running scripts
+- Provide more user friendly and robust running scripts
+- Find a better, more robust way to address counting of instances
+- Remove some of the bugs for printed statements
 
 ## Learnings
 
+- This elevator is more complicated problem than initially considered
 - Learned some new parts of python vocabularies like 'OrderedDict'
 - Got a better understanding of abstractions
 - Putting more effort into planing before starting to code pays back
 - Considered a controller class from the start would be a better and more efficient way of progress
+- It is important to specify your task instructions in a best way possible

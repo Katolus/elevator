@@ -24,9 +24,12 @@ class Controller:
         A helper function that prints out useful elevator information.
         """
         for elevator in self.elevators:
-            print(f"Elevator is at {elevator.floor} floor.")
-            print(f"Elevator's door are open: {elevator.door.is_open}")
-            print(f"Elevator is going: {elevator.direction}")
+            print(f"{elevator} is at {elevator.floor} floor.")
+            print(f"{elevator}'s door are open: {elevator.door.is_open}")
+            print(f"{elevator} is going: {elevator.direction}")
+            print(
+                f"People in the {elevator}: {[person.name for person in elevator.people]}"
+            )
 
     @property
     def free_elevators(self) -> List[Elevator]:
@@ -34,14 +37,17 @@ class Controller:
             raise ValueError("No elevators in this controller")
         return [elevator for elevator in self.elevators if elevator.is_free]
 
-    def elevator_at(self, floor: int) -> Optional[Elevator]:
+    def elevator_for(self, person: Person) -> Optional[Elevator]:
         """Return an elevator if it is at the floor"""
         for elevator in self.elevators:
-            if elevator.floor == floor:
+            if (
+                elevator.floor == person.enter_floor
+                and elevator.LOWEST_FLOOR <= person.exit_floor <= elevator.HIGHEST_FLOOR
+            ):
                 return elevator
         return None
 
-    def call_elevator(self, floor) -> bool:
+    def call_elevator_for(self, person: Person) -> Optional[Elevator]:
         """
         Moves the 'best' elevator into a called floor. 
         Returns a True if moved and False if not elevator to be moved.
@@ -50,18 +56,20 @@ class Controller:
         best_elevator = None
         min_value = float("inf")
         for elevator in self.free_elevators:
-            if elevator.LOWEST_FLOOR <= floor <= elevator.HIGHEST_FLOOR:
-                floor_difference = abs(floor - elevator.floor)
+            if (
+                elevator.LOWEST_FLOOR <= person.enter_floor <= elevator.HIGHEST_FLOOR
+                and elevator.LOWEST_FLOOR <= person.exit_floor <= elevator.HIGHEST_FLOOR
+            ):
+                floor_difference = abs(person.enter_floor - elevator.floor)
                 if floor_difference < min_value:
                     min_value = floor_difference
                     best_elevator = elevator
         if not best_elevator:
-            print("No elevator free at the moment")
-            return False
+            return
 
         # Send an elevator
-        best_elevator.move_to(floor)
-        return True
+        best_elevator.move_to(person.enter_floor)
+        return best_elevator
 
     def move_elevators(self):
         for elevator in self.elevators:
@@ -116,13 +124,13 @@ class Elevator:
         moving or null if not decided yet.
         """
         if not self.moving_to:
-            return None
+            return Direction.NOWHERE
         if self.moving_to > self.floor:
             return Direction.UP
         if self.moving_to < self.floor:
             return Direction.DOWN
         else:
-            return None
+            return Direction.NOWHERE
 
     @property
     def people_leaving(self) -> Iterator[Person]:
@@ -135,11 +143,11 @@ class Elevator:
         self.moving_to = floor
 
     def open_door(self):
-        print(f"Elevator door have opened")
+        print(f"{self} door have opened")
         self.door.open()
 
     def close_door(self):
-        print(f"Elevator door have closed")
+        print(f"{self} door have closed")
         self.door.close()
 
     def move(self):
@@ -159,7 +167,8 @@ class Elevator:
         elif self.direction == Direction.DOWN:
             self.down_1()
         else:
-            print(f"This elevator is not moving this round")
+            self.moving_to = None
+            print(f"{self} is not moving this round")
 
     @property
     def stop_queue(self):
@@ -177,7 +186,7 @@ class Elevator:
             return floor < self.floor
 
         if not self.stops:
-            return print(f"The elevator is has not future stops")
+            return
 
         oldest_request = self.stops[0]
         stop_queue = []
@@ -203,7 +212,7 @@ class Elevator:
         if self.floor + 1 > self.HIGHEST_FLOOR:
             raise ValueError(f"Can't go higher that the {self.HIGHEST_FLOOR} floor")
         self.floor += 1
-        print(f"Moved floors {self.floor -1} -> {self.floor}")
+        print(f"{self} moved floors {self.floor -1} -> {self.floor}")
 
     def down_1(self):
         if self.door.is_open:
@@ -211,7 +220,7 @@ class Elevator:
         if self.floor - 1 < self.LOWEST_FLOOR:
             raise ValueError(f"Can't go lower that the {self.LOWEST_FLOOR} floor")
         self.floor -= 1
-        print(f"Moved floors {self.floor + 1} -> {self.floor}")
+        print(f"{self} moved floors {self.floor + 1} -> {self.floor}")
 
 
 class Person:

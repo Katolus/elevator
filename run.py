@@ -27,12 +27,10 @@ class Program:
         def names(people) -> List[str]:
             return [person.name for person in people]
 
-        for elevator in self.lift_controller.elevators:
-            print(f"The elevator is at {elevator.floor} floor.")
-            print(f"People in the elevator {names(elevator.people)}")
+        self.lift_controller.report_status()
         print(f"People waiting for a lift {names(self.waiting_for_elevator)}")
 
-    def add_person_to_lift(self, elevator: Elevator,person: Person) -> None:
+    def add_person_to_lift(self, elevator: Elevator, person: Person) -> None:
         """
         Moves a person into a lift. 
 
@@ -42,7 +40,7 @@ class Program:
             elevator.open_door()
         elevator.people.append(person)
         self.waiting_for_elevator.remove(person)
-        print(f"{person.name} has entered the lift at {elevator.floor} floor")
+        print(f"{person.name} has entered the {elevator} at {elevator.floor} floor")
 
     def remove_person_to_lift(self, elevator: Elevator, person: Person) -> None:
         """
@@ -57,7 +55,7 @@ class Program:
         # If there are not people in the lift, it is not moving nowhere
         if not elevator.people:
             elevator.moving_to = None
-        print(f"{person.name} has left the lift at {elevator.floor} floor")
+        print(f"{person.name} has {elevator} the lift at {elevator.floor} floor")
 
     def next(self) -> None:
         """
@@ -66,21 +64,25 @@ class Program:
         # Remove people leaving at current floors
         for elevator in self.lift_controller.elevators:
             for person in elevator.people_leaving:
-                return self.remove_person_to_lift(elevator, person)
+                self.remove_person_to_lift(elevator, person)
 
+        print()
+        # Move people waiting into lifts if there is a lift at their floor
         for person in self.waiting_for_elevator:
-            # Move people waiting into lifts if there is a lift at their floor
-            if elevator := self.lift_controller.elevator_at(person.enter_floor):
-                return self.add_person_to_lift(elevator, person)
-            else:
-                # For people waiting on the lift calls the elevator
-                on_its_way = self.lift_controller.call_elevator(person.enter_floor)
-                if on_its_way:
-                    return print(f"An elevator for {person.name} is on its way!")
+            if elevator := self.lift_controller.elevator_for(person):
+                self.add_person_to_lift(elevator, person)
 
+        print()
+        # For people waiting on the lift calls the elevator
+        for person in self.waiting_for_elevator:
+            if elevator := self.lift_controller.call_elevator_for(person):
+                print(f"An {elevator} for {person.name} is on its way!")
+            else:
+                print(f"No elevator for {person.name} at the moment")
+
+        print()
         # Action elevators
         self.lift_controller.move_elevators()
-
 
     def handle_input(self, answer: str) -> None:
         """
@@ -151,7 +153,7 @@ scenario_3.lift_controller.add_elevator(Elevator(-1, 6))
 
 
 if __name__ == "__main__":
-    program = scenario_3
+    program = scenario_1
 
     while True:
         answer = session.prompt("> ", bottom_toolbar=bottom_toolbar)
