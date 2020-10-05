@@ -1,3 +1,4 @@
+import argparse
 import sys
 import time
 from typing import List
@@ -8,6 +9,7 @@ from prompt_toolkit.formatted_text import HTML
 from elevator import Controller
 from elevator import Elevator
 from elevator import Person
+from draw import Screen
 
 
 bottom_toolbar = HTML(
@@ -24,6 +26,12 @@ class Program:
         self.lift_controller: Controller = controller
         self.people: List[Person] = people
         self.waiting_for_elevator: List[Person] = people
+
+    def setup_for_drawing(self) -> None:
+        """
+        Creates a Screen instance that can be supplied with program's variables to draw the current elevator status
+        """
+        self.screen = Screen()
 
     def report_status(self) -> None:
         """Prints out the status of the program"""
@@ -104,6 +112,9 @@ class Program:
             self.report_status()
         else:
             print(f"No action for '{answer}'")
+        if hasattr(self, "screen"):
+            # self.screen.draw()
+            print("Drawing")
 
     def enter_a_person(self) -> None:
         """
@@ -162,19 +173,36 @@ scenario_3.lift_controller.add_elevator(Elevator(-1, 6))
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Runs the elevator program.")
+    parser.add_argument(
+        "--draw",
+        action="store_true",
+        help="If provided script will draw the elevator movement",
+    )
+    args = parser.parse_args()
+
     scenarios = [scenario_1, scenario_2, scenario_3]
 
     for index, scenario in enumerate(scenarios):
         print(f"{index + 1}. - {scenario.description}")
-    answer = session.prompt("> ", bottom_toolbar=HTML("Pick a scenario from the listed ones or amend the code and your own."))
+    answer = session.prompt(
+        "> ",
+        bottom_toolbar=HTML(
+            "Pick a scenario from the listed ones or amend the code and your own."
+        ),
+    )
 
     try:
         scenario = scenarios[int(answer) - 1]
     except Exception:
-        print('No such scenario')
+        print("No such scenario")
         sys.exit()
 
     program = scenario
+
+    print(args)
+    if args.draw:
+        program.setup_for_drawing()
 
     while True:
         answer = session.prompt("> ", bottom_toolbar=bottom_toolbar)
