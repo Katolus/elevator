@@ -7,6 +7,11 @@ In order to progress through defined scenarios start up the program (having inst
 To change scenarios, pick a different value from the 3 presented scenarios at the beginning of the script or add your own into the `run.py` script. 
 
 
+## Additional parameters
+
+One can pass the `--draw` argument into the script to active a drawing option that will draw the current state of a program as it progresses. 
+
+
 **Supported input**
 
 - `''`/`'next'` - will progress the program in 'elevator-time'
